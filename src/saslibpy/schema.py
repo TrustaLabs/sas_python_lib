@@ -1,5 +1,4 @@
-from saslibpy.sas import InstructionVariant, SYS_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, convert_to_pubkey, id_to_type, type_to_id
-from solders.keypair import Keypair
+from saslibpy.sas import InstructionVariant, SYS_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, convert_to_pubkey, id_to_type, type_to_id
 from solders.pubkey import Pubkey
 from solders.instruction import Instruction, AccountMeta
 
@@ -8,8 +7,8 @@ from solana.rpc.api import Client
 import json
 import base64
 
-from borsh_construct import I8, I16, I32, I64, I128, U8, U16, U32, U128
-from borsh_construct import Bool, String, CStruct, Vec
+from borsh_construct import I64, U8
+from borsh_construct import String, CStruct, Vec
 
 from saslibpy.credential import Credential
 
@@ -201,8 +200,6 @@ class Schema(object):
 
         decode_data = Schema.create_borsh_struct.parse(instruction.data)
         authority = instruction.accounts[2].pubkey
-
-
 
         schema = Schema({
                 "credential": authority,

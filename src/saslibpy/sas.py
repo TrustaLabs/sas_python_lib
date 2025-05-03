@@ -9,6 +9,9 @@ SYS_PROGRAM_ID = Pubkey.from_string("11111111111111111111111111111111")
 TOKEN_2022_PROGRAM_ID = Pubkey.from_string("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb")
 ASSOCIATED_TOKEN_PROGRAM_ID = Pubkey.from_string("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
 
+DEVNET_PROGRAM_ID = Pubkey.from_string('FJ8myMh9dRcgc2n8xBrWTbCrFYAbHQZCPtMzhhmvNo4M')
+TESTNET_PROGRAM_ID = None
+MAINNET_PROGRAM_ID = None
 
 id_to_type = {
     0:U8,

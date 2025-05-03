@@ -1,5 +1,4 @@
 from saslibpy.sas import InstructionVariant, SYS_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, convert_to_pubkey, get_associated_token_address
-from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 from solders.instruction import Instruction, AccountMeta
 

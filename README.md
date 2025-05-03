@@ -1,3 +1,6 @@
+# Solana attestation service
+The Solana Attestation Service (SAS) architecture guide is a technical overview of a credibly neutral attestation registry protocol. The SAS is built to enable the association of off-chain data with on-chain wallets through trusted attestations, serving as verifiable claims issued by trusted entities while preserving user privacy.
+
 # Solana attestation service python SDK
 
 ## import 
@@ -9,12 +12,12 @@ from saslibpy.schema import Schema
 from saslibpy.attestation import Attestation
 ```
 
-### client
+### solana rpc client
 ```
 from solana.rpc.api import Client
 ```
 
-### solders
+### solders tool
 ```
 from solders.pubkey import Pubkey
 from solders.keypair import Keypair
@@ -66,10 +69,10 @@ def create_schema():
 
     credential = Credential.from_address(client, credential_pda)
 
+    fields = ["index", "chain", "subject", "score", "timestamp"]
+
     layout_type = [String, String, String, String, String]
     layout = Schema.encode_layout_data(layout_type)
-
-    fields = ["index", "chain", "subject", "score", "timestamp"]
 
     _settings = {
         "credential": credential_pda,
