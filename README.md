@@ -10,6 +10,7 @@ The Solana Attestation Service (SAS) architecture guide is a technical overview 
 from saslibpy.credential import Credential
 from saslibpy.schema import Schema
 from saslibpy.attestation import Attestation
+from saslibpy.sas import DEVNET_PROGRAM_ID
 ```
 
 ### solana rpc client
@@ -33,7 +34,7 @@ client = Client("https://api.devnet.solana.com")
 ## set sas programId
 ```
 #devnet
-program_id = "FJ8myMh9dRcgc2n8xBrWTbCrFYAbHQZCPtMzhhmvNo4M"
+program_id = DEVNET_PROGRAM_ID
 ```
 
 ## create credential
@@ -200,7 +201,7 @@ def create_tokenize_attestation():
     attestation = Attestation(_settings)
 
     #instruction = credential.create_instruction(program_id)
-    instruction_construct = attestation.tokenize_instruction(program_id, tokenize_attestaion_nonce)
+    instruction_construct = attestation.tokenize_instruction(program_id, <recepient>)
     
     # Create a message
     recent_blockhash = client.get_latest_blockhash().value.blockhash
@@ -211,8 +212,6 @@ def create_tokenize_attestation():
     resp = client.send_transaction(transaction)
     print(resp)
 ```
-
-
 
 ## fetch credential 
 ```
@@ -228,8 +227,10 @@ def fetch_credential():
 
     print("new_credential:", new_credential)
     print("pid:", pid)
+```
 
-
+## fetch attestation 
+```
 def fetch_schema():
 
     schema = Schema.from_address(client, schema_pda)
