@@ -229,7 +229,7 @@ def fetch_credential():
     print("pid:", pid)
 ```
 
-## fetch attestation 
+## fetch schema
 ```
 def fetch_schema():
 
