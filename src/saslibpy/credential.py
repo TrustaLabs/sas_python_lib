@@ -60,7 +60,7 @@ class Credential(object):
         return Credential(_parsed)
     
 
-    def create_instruction(self, program_id):
+    def create_instruction(self, _payer, _author, program_id):
 
         credential_pda = Pubkey.find_program_address(
             [b"credential", bytes(self.authority), self.name.encode()], 
@@ -75,9 +75,9 @@ class Credential(object):
 
         instruction = Instruction(
                 accounts=[
-                    AccountMeta(self.signers[0], True, True),
+                    AccountMeta(convert_to_pubkey(_payer), True, True),
                     AccountMeta(credential_pda, False, True),
-                    AccountMeta(self.signers[1], True, True),
+                    AccountMeta(convert_to_pubkey(_author), True, True),
                     AccountMeta(SYS_PROGRAM_ID, False, False),
                     ],
                 program_id=convert_to_pubkey(program_id), 
