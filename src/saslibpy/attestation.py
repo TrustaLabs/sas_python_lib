@@ -110,7 +110,7 @@ class Attestation(object):
         return _attestation_pda, _tokenize_attestation_mint_pda
     
     
-    def create_instruction(self, program_id):
+    def create_instruction(self, _payer, _author, program_id):
 
         attestation_pda, tokenize_attestation_mint_pda = self.calc_pda(program_id)
 
@@ -125,8 +125,8 @@ class Attestation(object):
 
         instruction = Instruction(
             accounts=[
-                AccountMeta(self.credential.signers[0], True, True),
-                AccountMeta(self.credential.signers[1], True, True),
+                AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(convert_to_pubkey(_author), True, True),
                 AccountMeta(self.credential_pda, False, False),
                 AccountMeta(self.schema_pda, False, False),
                 AccountMeta(attestation_pda, False, True),
@@ -139,7 +139,7 @@ class Attestation(object):
         return instruction
 
 
-    def tokenize_instruction(self, program_id, recipient):
+    def tokenize_instruction(self, _payer, _author, program_id, recipient):
 
         sas_pda, schema_pda, schema_mint_pda = self.schema.calc_pda(program_id)
         attestation_pda, tokenize_attestation_mint_pda = self.calc_pda(program_id)
@@ -162,8 +162,8 @@ class Attestation(object):
 
         instruction = Instruction(
             accounts=[
-                AccountMeta(self.credential.signers[0], True, True),
-                AccountMeta(self.credential.signers[1], True, True),
+               AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(convert_to_pubkey(_author), True, True),
                 AccountMeta(self.credential_pda, False, False),
                 AccountMeta(self.schema_pda, False, False),
                 AccountMeta(attestation_pda, False, True),

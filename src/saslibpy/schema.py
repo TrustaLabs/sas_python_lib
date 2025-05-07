@@ -128,7 +128,7 @@ class Schema(object):
         return _sas_pda, _schema_pda, _schema_mint_pda
     
     
-    def create_instruction(self, program_id):
+    def create_instruction(self, _payer, _author, program_id):
 
         sas_pda, schema_pda, schema_mint_pda = self.calc_pda(program_id)
         
@@ -142,8 +142,8 @@ class Schema(object):
 
         instruction = Instruction(
             accounts=[
-                AccountMeta(self.credential.signers[0], True, True),
-                AccountMeta(self.credential.signers[1], True, True),
+                AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(convert_to_pubkey(_author), True, True),
                 AccountMeta(self.credential_pda, False, False),
                 AccountMeta(schema_pda, False, True),
                 AccountMeta(SYS_PROGRAM_ID, False, False),
@@ -155,7 +155,7 @@ class Schema(object):
         return instruction
     
 
-    def tokenize_instruction(self, program_id, max_size=None):
+    def tokenize_instruction(self, _payer, _author, program_id, max_size=None):
 
         sas_pda, schema_pda, schema_mint_pda = self.calc_pda(program_id)
 
@@ -166,8 +166,8 @@ class Schema(object):
 
         instruction = Instruction(
             accounts=[
-                AccountMeta(self.credential.signers[0], True, True),
-                AccountMeta(self.credential.signers[1], True, True),
+                AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(convert_to_pubkey(_author), True, True),
                 AccountMeta(self.credential_pda, False, False),
                 AccountMeta(schema_pda, False, False),
                 AccountMeta(schema_mint_pda, False, True),
