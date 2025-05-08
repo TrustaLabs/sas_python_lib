@@ -34,6 +34,22 @@ class Schema(object):
         'fieldNames' / Vec(String)
     )
 
+    change_description_borsh_struct = CStruct( 
+        "id" / U8,
+        "description" / String
+    )
+
+    change_status_borsh_struct = CStruct( 
+        "id" / U8,
+        "isPaused" / U8
+    )
+
+    change_version_borsh_struct = CStruct( 
+        "id" / U8,
+        'layout' / Vec(U8),
+        'fieldNames' / Vec(String)
+    )
+
     tokenize_borsh_struct = CStruct( 
         "id" / U8,
         "max_size" / I64
@@ -128,7 +144,7 @@ class Schema(object):
         return _sas_pda, _schema_pda, _schema_mint_pda
     
     
-    def create_instruction(self, _payer, _author, program_id):
+    def create_instruction(self, _payer, program_id):
 
         sas_pda, schema_pda, schema_mint_pda = self.calc_pda(program_id)
         
@@ -143,7 +159,7 @@ class Schema(object):
         instruction = Instruction(
             accounts=[
                 AccountMeta(convert_to_pubkey(_payer), True, True),
-                AccountMeta(convert_to_pubkey(_author), True, True),
+                AccountMeta(self.credential.authority, True, True),
                 AccountMeta(self.credential_pda, False, False),
                 AccountMeta(schema_pda, False, True),
                 AccountMeta(SYS_PROGRAM_ID, False, False),
@@ -155,7 +171,7 @@ class Schema(object):
         return instruction
     
 
-    def tokenize_instruction(self, _payer, _author, program_id, max_size=None):
+    def tokenize_instruction(self, _payer, program_id, max_size=None):
 
         sas_pda, schema_pda, schema_mint_pda = self.calc_pda(program_id)
 
@@ -167,7 +183,7 @@ class Schema(object):
         instruction = Instruction(
             accounts=[
                 AccountMeta(convert_to_pubkey(_payer), True, True),
-                AccountMeta(convert_to_pubkey(_author), True, True),
+                AccountMeta(self.credential.authority, True, True),
                 AccountMeta(self.credential_pda, False, False),
                 AccountMeta(schema_pda, False, False),
                 AccountMeta(schema_mint_pda, False, True),
@@ -212,6 +228,78 @@ class Schema(object):
         )
         
         return schema, program_id
+    
+
+    def change_description_instruction(self, description, program_id):
+
+        sas_pda, schema_pda, schema_mint_pda = self.calc_pda(program_id)
+        
+        payload_ser = Schema.change_description_borsh_struct.build({
+            "id": InstructionVariant.CHANGE_SCHEMA_DESCRIPTION_DISCRIMINATOR, 
+            "description": description
+        })
+
+        instruction = Instruction(
+            accounts=[
+                AccountMeta(self.credential.authority, True, True),
+                AccountMeta(self.credential_pda, False, False),
+                AccountMeta(schema_pda, False, True),
+                AccountMeta(SYS_PROGRAM_ID, False, False),
+                ],
+            program_id=program_id, 
+            data=payload_ser
+        )
+        
+        return instruction
+    
+
+    def change_status_instruction(self, isPaused, program_id):
+
+        sas_pda, schema_pda, schema_mint_pda = self.calc_pda(program_id)
+        
+        payload_ser = Schema.change_status_borsh_struct.build({
+            "id": InstructionVariant.CHANGE_SCHEMA_STATUS_DISCRIMINATOR, 
+            "isPaused": isPaused
+        })
+
+        instruction = Instruction(
+            accounts=[
+                AccountMeta(self.credential.authority, True, True),
+                AccountMeta(self.credential_pda, False, False),
+                AccountMeta(schema_pda, False, True)
+                ],
+            program_id=program_id, 
+            data=payload_ser
+        )
+        
+        return instruction
+
+    
+
+    def change_version_instruction(self, _payer, _old_schema, program_id):
+
+        sas_pda, schema_pda, schema_mint_pda = self.calc_pda(program_id)
+        
+        payload_ser = Schema.change_version_borsh_struct.build({
+            "id": InstructionVariant.CHANGE_SCHEMA_VERSION_DISCRIMINATOR, 
+            "layout": self.layout,
+            "fieldNames": self.fieldNames
+        })
+
+        instruction = Instruction(
+            accounts=[
+                AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(self.credential.authority, True, True),
+                AccountMeta(self.credential_pda, False, False),
+                AccountMeta(convert_to_pubkey(_old_schema), False, False),
+                AccountMeta(schema_pda, False, True),
+                AccountMeta(SYS_PROGRAM_ID, False, False),
+                ],
+            program_id=program_id, 
+            data=payload_ser
+        )
+        
+        return instruction
     
 
 

@@ -24,6 +24,11 @@ class Credential(object):
         'signers' / Vec(U8[32])
     )
 
+    change_signers_borsh_struct = CStruct( 
+        "id" / U8,
+        'signers' / Vec(U8[32])
+    )
+
     def __init__(self, settings: dict) -> None: 
 
         self.discriminator = InstructionVariant.CREATE_CREDENTIAL_DISCRIMINATOR
@@ -60,7 +65,7 @@ class Credential(object):
         return Credential(_parsed)
     
 
-    def create_instruction(self, _payer, _author, program_id):
+    def create_instruction(self, _payer, program_id):
 
         credential_pda = Pubkey.find_program_address(
             [b"credential", bytes(self.authority), self.name.encode()], 
@@ -77,7 +82,7 @@ class Credential(object):
                 accounts=[
                     AccountMeta(convert_to_pubkey(_payer), True, True),
                     AccountMeta(credential_pda, False, True),
-                    AccountMeta(convert_to_pubkey(_author), True, True),
+                    AccountMeta(self.authority, True, True),
                     AccountMeta(SYS_PROGRAM_ID, False, False),
                     ],
                 program_id=convert_to_pubkey(program_id), 
@@ -115,5 +120,31 @@ class Credential(object):
         )
         
         return credential, program_id
+    
+
+    def change_signers_instruction(self, _payer, new_signers, program_id):
+
+        credential_pda = Pubkey.find_program_address(
+            [b"credential", bytes(self.authority), self.name.encode()], 
+            convert_to_pubkey(program_id)
+        )[0]
+        
+        payload_ser = Credential.change_signers_borsh_struct.build({
+            "id": InstructionVariant.CHANGE_AUTHORIZED_SIGNERS_DISCRIMINATOR, 
+            "signers": [ list(bytes(convert_to_pubkey(x))) for x in new_signers]
+        })
+
+        instruction = Instruction(
+                accounts=[
+                    AccountMeta(convert_to_pubkey(_payer), True, True),
+                    AccountMeta(self.authority, True, True),
+                    AccountMeta(credential_pda, False, True),
+                    AccountMeta(SYS_PROGRAM_ID, False, False),
+                    ],
+                program_id=convert_to_pubkey(program_id), 
+                data=payload_ser
+            )
+        
+        return instruction
 
 
