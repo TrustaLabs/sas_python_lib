@@ -1,4 +1,4 @@
-from saslibpy.sas import InstructionVariant, SYS_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, convert_to_pubkey, get_associated_token_address
+from saslibpy.sas import InstructionVariant, PdaSeed, SYS_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, convert_to_pubkey, get_associated_token_address
 from solders.pubkey import Pubkey
 from solders.instruction import Instruction, AccountMeta
 
@@ -111,11 +111,11 @@ class Attestation(object):
 
     def calc_pda(self, program_id):
 
-        _attestation_pda = Pubkey.find_program_address([b"attestation", bytes(self.credential_pda), bytes(self.schema_pda), bytes(self.nonce)], program_id)[0]
+        _attestation_pda = Pubkey.find_program_address([PdaSeed.ATTESTATION_SEED, bytes(self.credential_pda), bytes(self.schema_pda), bytes(self.nonce)], program_id)[0]
         
-        _tokenize_attestation_mint_pda = Pubkey.find_program_address([b"attestationMint", bytes(_attestation_pda)], program_id)[0]
+        _tokenize_attestation_mint_pda = Pubkey.find_program_address([PdaSeed.ATTESTATION_MINT_SEED, bytes(_attestation_pda)], program_id)[0]
 
-        _event_auth_pda = Pubkey.find_program_address([b"eventAuthority"], program_id)[0]
+        _event_auth_pda = Pubkey.find_program_address([PdaSeed.EVENT_AUTHORITY_SEED], program_id)[0]
 
         return _attestation_pda, _tokenize_attestation_mint_pda, _event_auth_pda
     

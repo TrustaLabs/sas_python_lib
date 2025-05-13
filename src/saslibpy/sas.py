@@ -13,6 +13,7 @@ DEVNET_PROGRAM_ID = Pubkey.from_string('FJ8myMh9dRcgc2n8xBrWTbCrFYAbHQZCPtMzhhmv
 TESTNET_PROGRAM_ID = None
 MAINNET_PROGRAM_ID = None
 
+
 id_to_type = {
     0:U8,
     1:U16,
@@ -70,6 +71,17 @@ type_to_id = {
     #Vec(Char):24,
     Vec(String):25
 }
+
+class PdaSeed(object):
+
+    ATTESTATION_SEED = b"attestation"
+    CREDENTIAL_SEED = b"credential"
+    SCHEMA_SEED = b"schema"
+    EVENT_AUTHORITY_SEED = b"eventAuthority"
+    SAS_SEED = b"sas"
+    SCHEMA_MINT_SEED = b"schemaMint"
+    ATTESTATION_MINT_SEED = b"attestationMint"
+
 
 # Instruction variants for target program
 class InstructionVariant(IntEnum):

@@ -1,4 +1,4 @@
-from saslibpy.sas import InstructionVariant, SYS_PROGRAM_ID, convert_to_pubkey
+from saslibpy.sas import InstructionVariant, PdaSeed, SYS_PROGRAM_ID, convert_to_pubkey
 from solders.pubkey import Pubkey
 from solders.instruction import Instruction, AccountMeta
 
@@ -65,12 +65,19 @@ class Credential(object):
         return Credential(_parsed)
     
 
-    def create_instruction(self, _payer, program_id):
-
-        credential_pda = Pubkey.find_program_address(
-            [b"credential", bytes(self.authority), self.name.encode()], 
+    def calc_pda(self, program_id):
+        
+        _credential_pda = Pubkey.find_program_address(
+            [PdaSeed.CREDENTIAL_SEED, bytes(self.authority), self.name.encode()], 
             convert_to_pubkey(program_id)
         )[0]
+
+        return _credential_pda
+    
+
+    def create_instruction(self, _payer, program_id):
+
+        credential_pda = self.calc_pda(program_id)
         
         payload_ser = Credential.create_borsh_struct.build({
             "id": InstructionVariant.CREATE_CREDENTIAL_DISCRIMINATOR, 

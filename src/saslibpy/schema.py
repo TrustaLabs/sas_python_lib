@@ -1,4 +1,4 @@
-from saslibpy.sas import InstructionVariant, SYS_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, convert_to_pubkey, id_to_type, type_to_id
+from saslibpy.sas import InstructionVariant, PdaSeed, SYS_PROGRAM_ID, TOKEN_2022_PROGRAM_ID, convert_to_pubkey, id_to_type, type_to_id
 from solders.pubkey import Pubkey
 from solders.instruction import Instruction, AccountMeta
 
@@ -135,11 +135,11 @@ class Schema(object):
     
 
     def calc_pda(self, program_id):
-        _sas_pda = Pubkey.find_program_address([b"sas"], program_id)[0]
+        _sas_pda = Pubkey.find_program_address([PdaSeed.SAS_SEED], program_id)[0]
 
-        _schema_pda = Pubkey.find_program_address([b"schema", bytes(self.credential_pda), self.name.encode('utf-8'), bytes([int(self.version)])], program_id)[0]
+        _schema_pda = Pubkey.find_program_address([PdaSeed.SCHEMA_SEED, bytes(self.credential_pda), self.name.encode('utf-8'), bytes([int(self.version)])], program_id)[0]
 
-        _schema_mint_pda = Pubkey.find_program_address([b"schemaMint", bytes(_schema_pda)], program_id)[0]
+        _schema_mint_pda = Pubkey.find_program_address([PdaSeed.SCHEMA_MINT_SEED, bytes(_schema_pda)], program_id)[0]
 
         return _sas_pda, _schema_pda, _schema_mint_pda
     

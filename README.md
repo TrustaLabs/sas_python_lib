@@ -3,6 +3,11 @@ The Solana Attestation Service (SAS) architecture guide is a technical overview 
 
 # Solana attestation service python SDK
 
+## install
+```
+pip install saslibpy
+```
+
 ## import 
 
 ### saslib
