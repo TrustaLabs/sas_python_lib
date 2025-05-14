@@ -42,6 +42,14 @@ class Attestation(object):
         'mintAccountSpace' / U16
     )
 
+    close_borsh_struct = CStruct( 
+        "id" / U8
+    )
+
+    close_tokenize_borsh_struct = CStruct( 
+        "id" / U8
+    )
+
     
     def __init__(self, settings: dict) -> None: 
 
@@ -107,12 +115,14 @@ class Attestation(object):
         
         _tokenize_attestation_mint_pda = Pubkey.find_program_address([b"attestationMint", bytes(_attestation_pda)], program_id)[0]
 
-        return _attestation_pda, _tokenize_attestation_mint_pda
-    
-    
-    def create_instruction(self, program_id):
+        _event_auth_pda = Pubkey.find_program_address([b"eventAuthority"], program_id)[0]
 
-        attestation_pda, tokenize_attestation_mint_pda = self.calc_pda(program_id)
+        return _attestation_pda, _tokenize_attestation_mint_pda, _event_auth_pda
+    
+    
+    def create_instruction(self, _payer, _author, program_id):
+
+        attestation_pda, tokenize_attestation_mint_pda, event_auth_pda = self.calc_pda(program_id)
 
         encode_data = self.schema.encode_attestation_data(self.data)
         
@@ -125,8 +135,8 @@ class Attestation(object):
 
         instruction = Instruction(
             accounts=[
-                AccountMeta(self.credential.signers[0], True, True),
-                AccountMeta(self.credential.signers[1], True, True),
+                AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(convert_to_pubkey(_author), True, True),
                 AccountMeta(self.credential_pda, False, False),
                 AccountMeta(self.schema_pda, False, False),
                 AccountMeta(attestation_pda, False, True),
@@ -139,10 +149,10 @@ class Attestation(object):
         return instruction
 
 
-    def tokenize_instruction(self, program_id, recipient):
+    def tokenize_instruction(self, _payer, _author, program_id, recipient):
 
         sas_pda, schema_pda, schema_mint_pda = self.schema.calc_pda(program_id)
-        attestation_pda, tokenize_attestation_mint_pda = self.calc_pda(program_id)
+        attestation_pda, tokenize_attestation_mint_pda, event_auth_pda = self.calc_pda(program_id)
 
         _recipient = convert_to_pubkey(recipient)
         recipient_token_account = get_associated_token_address(tokenize_attestation_mint_pda, _recipient)
@@ -162,8 +172,8 @@ class Attestation(object):
 
         instruction = Instruction(
             accounts=[
-                AccountMeta(self.credential.signers[0], True, True),
-                AccountMeta(self.credential.signers[1], True, True),
+               AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(convert_to_pubkey(_author), True, True),
                 AccountMeta(self.credential_pda, False, False),
                 AccountMeta(self.schema_pda, False, False),
                 AccountMeta(attestation_pda, False, True),
@@ -222,3 +232,66 @@ class Attestation(object):
         )
         
         return attestation, program_id
+    
+
+    def close_instruction(self, _payer, _author, program_id, _service_program_id=None):
+
+        service_program_id = program_id if _service_program_id is None else _service_program_id
+
+        attestation_pda, tokenize_attestation_mint_pda, event_auth_pda = self.calc_pda(program_id)
+
+        payload_ser = Attestation.close_borsh_struct.build({
+            "id": InstructionVariant.CLOSE_ATTESTATION_DISCRIMINATOR
+        })
+
+        instruction = Instruction(
+            accounts=[
+                AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(convert_to_pubkey(_author), True, True),
+                AccountMeta(self.credential_pda, False, False),
+                AccountMeta(attestation_pda, False, True),
+                AccountMeta(event_auth_pda, False, False),
+                AccountMeta(SYS_PROGRAM_ID, False, False),
+                AccountMeta(convert_to_pubkey(service_program_id), False, False),
+                ],
+            program_id=program_id, 
+            data=payload_ser
+        )
+
+        return instruction
+
+
+
+    def close_tokenize_instruction(self, _payer, _author, recipient, program_id, _service_program_id=None):
+
+        service_program_id = program_id if _service_program_id is None else _service_program_id
+
+        sas_pda, schema_pda, schema_mint_pda = self.schema.calc_pda(program_id)
+        attestation_pda, tokenize_attestation_mint_pda, event_auth_pda = self.calc_pda(program_id)
+
+        _recipient = convert_to_pubkey(recipient)
+        recipient_token_account = get_associated_token_address(tokenize_attestation_mint_pda, _recipient)
+
+        payload_ser = Attestation.close_tokenize_borsh_struct.build({
+            "id": InstructionVariant.CLOSE_TOKENIZED_ATTESTATION_DISCRIMINATOR
+        })
+
+        instruction = Instruction(
+            accounts=[
+                AccountMeta(convert_to_pubkey(_payer), True, True),
+                AccountMeta(convert_to_pubkey(_author), True, True),
+                AccountMeta(self.credential_pda, False, False),
+                AccountMeta(attestation_pda, False, True),
+                AccountMeta(event_auth_pda, False, False),
+                AccountMeta(SYS_PROGRAM_ID, False, False),
+                AccountMeta(convert_to_pubkey(service_program_id), False, False),
+                AccountMeta(tokenize_attestation_mint_pda, False, True),
+                AccountMeta(sas_pda, False, False),
+                AccountMeta(convert_to_pubkey(recipient_token_account), False, True),
+                AccountMeta(TOKEN_2022_PROGRAM_ID, False, False),
+            ],
+            program_id=program_id, 
+            data=payload_ser
+        )
+
+        return instruction
