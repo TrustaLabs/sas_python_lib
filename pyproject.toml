@@ -11,6 +11,12 @@ authors = [
 description = "python SDK for solana attestation service"
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+  "borsh-construct==0.1.0",
+  "solana==0.36.6",
+  "solders==0.26.0",
+]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
@@ -20,3 +26,4 @@ license-files = ["LICEN[CS]E*"]
 
 [project.urls]
 Homepage = "https://github.com/TrustaLabs/saslibpy"
+
