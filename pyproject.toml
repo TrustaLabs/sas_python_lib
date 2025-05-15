@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "saslibpy"
-version = "0.2.1"
+version = "0.2.2"
 authors = [
   { name="Todd Li", email="liheact@gmail.com" },
 ]
@@ -12,9 +12,9 @@ description = "python SDK for solana attestation service"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-  "borsh-construct==0.1.0",
-  "solana==0.36.6",
-  "solders==0.26.0",
+  "borsh-construct>=0.1.0",
+  "solana>=0.36.6",
+  "solders>=0.26.0",
 ]
 
 classifiers = [
